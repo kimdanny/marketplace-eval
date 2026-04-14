@@ -1,0 +1,158 @@
+{
+  "simulation": {
+    "horizon": 200,
+    "total_num_users": 10, # total number of users to be generated/initiated before the market simulation
+    "users_per_step": 5,
+    "seed": 42
+  },
+  "users": {
+    # Path to user data file. If empty or file doesn't exist, synthetic data will be generated automatically based on the taxonomy configuration
+    "user_data_source": "user_data/simple_qa_test_subset_qid.csv",  
+    "taxonomy_base": "", # "datamorgana" or "tuna" (datamorgana is recommended to be used for RAG evaluation, whereas tuna is recommended to be used for general usage evaluation)
+    "user_data_type": "qa", # "q" (questions only) or "qa" (question-answer pairs); TUNA only supports "q".
+    "profiles": []  # Leave profiles empty to use auto-generation, or provide custom profiles to override.
+  },
+  "judges": [
+    {
+      "id": "simple_qa_judge",
+      "type": "judge",
+      "params": {
+        "judge_prompt": "simple_qa",
+        "provider": "openrouter",
+        "model_id": "openai/gpt-4.1",
+        "generation_parameters": {
+            "temperature": 0.0,
+        },
+      }
+    }
+  ],
+  # Marketplace Graph (nodes and edges)
+  "graph": {
+    "nodes": [
+      {"id": "user_input", "type": "input"},
+      {"id": "answer_output", "type": "output"},
+      {
+        "id": "generator_gemini_2_5_flash_lite",
+        "type": "generator",
+        "params": {
+          "name": "Gemini-2.5-Flash-Lite",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "google/gemini-2.5-flash-lite",
+            "generation_parameters": {
+              "temperature": 0.7,
+            }
+          },
+          "system_prompt": "",
+        }
+      },
+      {
+        "id": "generator_qwen3_235b_a22b_2507",
+        "type": "generator",
+        "introduce_from": 100, # introduce the generator at timestep 100
+        "params": {
+          "name": "Qwen3-235b-A22b-2507",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "qwen/qwen3-235b-a22b-2507",
+            "generation_parameters": {
+              "temperature": 0.7,
+            }
+          },
+          "system_prompt": "",
+        }
+      },
+      {
+        "id": "generator_kimi_k2_5",
+        "type": "generator",
+        "params": {
+          "name": "Kimi-K2.5",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "moonshotai/kimi-k2.5",
+            "generation_parameters": {
+              "temperature": 0.7,
+            },
+          },
+          "system_prompt": "",
+        }
+      },
+      {
+        "id": "generator_gpt_oss_120b",
+        "type": "generator",
+        "params": {
+          "name": "GPT-OSS-120B",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "openai/gpt-oss-120b",
+            "generation_parameters": {
+              "temperature": 0.7,
+            },
+          },
+          "system_prompt": "",
+        }
+      },
+      {
+        "id": "generator_deepseek_v3_2",
+        "type": "generator",
+        "params": {
+          "name": "DeepSeek-V3.2",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "deepseek/deepseek-v3.2",
+            "generation_parameters": {
+              "temperature": 0.7,
+            },
+          },
+          "system_prompt": "",
+        }
+      },
+      {
+        "id": "generator_llama_3_3_70b_instruct",
+        "type": "generator",
+        "params": {
+          "name": "Llama-3.3-70b-Instruct",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "meta-llama/llama-3.3-70b-instruct",
+            "generation_parameters": {
+              "temperature": 0.7,
+            },
+          },
+          "system_prompt": "",
+        }
+      },
+      {
+        "id": "generator_grok_4_1_fast",
+        "type": "generator",
+        "params": {
+          "name": "Grok-4.1-Fast",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "x-ai/grok-4.1-fast",
+            "generation_parameters": {
+              "temperature": 0.7,
+            },
+          },
+          "system_prompt": "",
+        }
+      },
+    ],
+    "edges": [
+      {"source": "user_input", "target": "generator_gemini_2_5_flash_lite"},
+      {"source": "user_input", "target": "generator_qwen3_235b_a22b_2507"},
+      {"source": "user_input", "target": "generator_kimi_k2_5"},
+      {"source": "user_input", "target": "generator_gpt_oss_120b"},
+      {"source": "user_input", "target": "generator_deepseek_v3_2"},
+      {"source": "user_input", "target": "generator_llama_3_3_70b_instruct"},
+      {"source": "user_input", "target": "generator_grok_4_1_fast"},
+      {"source": "generator_gemini_2_5_flash_lite", "target": "answer_output"},
+      {"source": "generator_qwen3_235b_a22b_2507", "target": "answer_output"},
+      {"source": "generator_kimi_k2_5", "target": "answer_output"},
+      {"source": "generator_gpt_oss_120b", "target": "answer_output"},
+      {"source": "generator_deepseek_v3_2", "target": "answer_output"},
+      {"source": "generator_llama_3_3_70b_instruct", "target": "answer_output"},
+      {"source": "generator_grok_4_1_fast", "target": "answer_output"},
+    ]
+  }
+}

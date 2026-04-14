@@ -1,0 +1,66 @@
+{
+  "simulation": {
+    "horizon": 100,
+    "total_num_users": 10,
+    "users_per_step": 5,
+    "seed": 42
+  },
+  "users": {
+    "taxonomy_base": "datamorgana",
+    "user_data_type": "qa",
+    "user_data_source": "",
+    "profiles": []
+  },
+  "judges": [
+    {
+      "id": "default_judge",
+      "type": "judge",
+      "params": {
+        "judge_prompt": "default",
+        "provider": "openrouter",
+        "model_id": "openai/gpt-4.1",
+        "generation_parameters": {
+          "temperature": 0.0
+        }
+      }
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {"id": "user_input", "type": "input"},
+      {"id": "answer_output", "type": "output"},
+      {
+        "id": "generator_llama",
+        "type": "generator",
+        "params": {
+          "name": "Llama-3.3-70B",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "meta-llama/llama-3.3-70b-instruct",
+            "generation_parameters": {"temperature": 0.7}
+          },
+          "system_prompt": ""
+        }
+      },
+      {
+        "id": "generator_qwen",
+        "type": "generator",
+        "params": {
+          "name": "Qwen-2.5-72B",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "qwen/qwen-2.5-72b-instruct:free",
+            "generation_parameters": {"temperature": 0.7}
+          },
+          "system_prompt": ""
+        }
+      }
+    ],
+    "edges": [
+      {"source": "user_input", "target": "generator_llama"},
+      {"source": "user_input", "target": "generator_qwen"},
+      {"source": "generator_llama", "target": "answer_output"},
+      {"source": "generator_qwen", "target": "answer_output"}
+    ]
+  }
+}

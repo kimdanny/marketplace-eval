@@ -1,0 +1,161 @@
+{
+  "simulation": {
+    "horizon": 1000,
+    "total_num_users": 100, # total number of users to be generated/initiated before the marketplace simulation
+    "users_per_step": 50,
+    "seed": 42
+  },
+  "users": {
+    "taxonomy_base": "datamorgana", # "datamorgana" or "tuna" (datamorgana is used for RAG evaluation, whereas tuna can be used for general usage evaluation)
+    "user_data_type": "qa", # "q" (questions only) or "qa" (question-answer pairs); TUNA only supports "q".
+    # Note: Whether to use documents to ground questions is now determined by the "needs_documents" field
+    #   in each question type definition in the taxonomy config (humans/datamorgana_config.py or humans/tuna_config.py)
+    # Path to user data file. If empty or file doesn't exist, data will be generated automatically
+    "user_data_source": "/path/to/user_data.json",  
+    "profiles": []  # Leave profiles empty to use auto-generation, or provide custom profiles to override.
+  },
+  "judges": [
+    {
+      "id": "sample_judge",
+      "type": "judge",
+      "params": {
+        "judge_prompt": "sample",
+        "provider": "openrouter",
+        "model_id": "openai/gpt-4.1",
+        "generation_parameters": {
+            "temperature": 0.0,
+        },
+      }
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {"id": "user_input", "type": "input"},
+      {"id": "answer_output", "type": "output"},
+      {
+        "id": "generator_t5_base",
+        "type": "generator",
+        "params": {
+          "name": "T5-Base",
+          "model": {
+            "provider": "vllm",
+            "model_id": "google-t5/t5-base",
+            "sampling_parameters": {
+              "temperature": 0.7,
+              "max_tokens": 512
+            }
+          },
+          "system_prompt": ""
+        }
+      },
+      {
+        "id": "generator_qwen_2_5_7b_instruct",
+        "type": "generator",
+        "params": {
+          "name": "Qwen-2.5-7b-Instruct",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "qwen/qwen-2.5-72b-instruct:free",
+            "generation_parameters": {
+              "temperature": 0.7,
+            }
+          },
+          "system_prompt": "",
+          "retrieval_strategy": {
+            "type": "agentic",
+            "max_rounds": 2,
+            "router_top_k": null,
+            "documents_per_retriever": 2,
+            "max_context_documents": 4,
+            "context_separator": " \n"
+          }
+        }
+      },
+      {
+        "id": "generator_gpt_oss_20b",
+        "type": "generator",
+        "params": {
+          "name": "GPT-OSS-20B",
+          "model": {
+            "provider": "openrouter",
+            "model_id": "openai/gpt-oss-20b:free",
+            "generation_parameters": {
+              "temperature": 0.6,
+              "top_p": 0.7,
+            },
+            "headers": {
+              "HTTP-Referer": "https://example.com/simulation",
+              "X-Title": "My Simulation"
+            }
+          },
+          "system_prompt": "Answer user questions clearly and reference provided context when appropriate.",
+          "retrieval_strategy": {
+            "type": "naive",
+            "router_top_k": 1,
+            "documents_per_retriever": 1
+          }
+        }
+      },
+      {
+        "id": "router_main",
+        "type": "router",
+        "params": {
+          "exploration_prob": 0.2
+        }
+      },
+      {
+        "id": "retriever_e5_base",
+        "type": "retriever",
+        "params": {
+          "model_id": "intfloat/e5-base-v2",
+          "top_k": 3,
+          "corpus_path": "user_data/fineweb_500.jsonl"
+        }
+      },
+      {
+        "id": "retriever_e5_small",
+        "type": "retriever",
+        "params": {
+          "model_id": "intfloat/e5-small-v2",
+          "top_k": 2,
+          "corpus_path": "user_data/fineweb_500.jsonl"
+        }
+      },
+      {
+        "id": "retriever_mini",
+        "type": "retriever",
+        "params": {
+          "model_id": "sentence-transformers/all-MiniLM-L12-v2",
+          "top_k": 1,
+          "corpus_path": "user_data/fineweb_500.jsonl"
+        }
+      },
+      {
+        "id": "retriever_google_web",
+        "type": "retriever",
+        "params": {
+          "backend": "google_search",
+          "safe": "active",
+          "top_k": 3,
+          "fetch_full_text": True,
+          "max_text_length": 1000,
+          "url_timeout": 5.0
+        }
+      }
+    ],
+    "edges": [
+      {"source": "user_input", "target": "generator_t5_base"},
+      {"source": "user_input", "target": "generator_qwen_2_5_7b_instruct"},
+      {"source": "user_input", "target": "generator_gpt_oss_20b"},
+      {"source": "generator_t5_base", "target": "router_main"},
+      {"source": "generator_qwen_2_5_7b_instruct", "target": "router_main"},
+      {"source": "generator_gpt_oss_20b", "target": "router_main"},
+      {"source": "router_main", "target": "retriever_e5_base"},
+      {"source": "router_main", "target": "retriever_e5_small"},
+      {"source": "router_main", "target": "retriever_mini"},
+      {"source": "generator_t5_base", "target": "answer_output"},
+      {"source": "generator_qwen_2_5_7b_instruct", "target": "answer_output"},
+      {"source": "generator_gpt_oss_20b", "target": "answer_output"}
+    ]
+  }
+}

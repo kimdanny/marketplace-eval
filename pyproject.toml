@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marketplace-eval"
+keywords = ["marketplace", "agent", "agents", "retrieval", "evaluation"]
+version = "0.1.0"
+description = "Framework for simulating heterogeneous agent pipelines as competing agents in an AI marketplace"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+maintainers = [
+  {name = "To Eun Kim", email = "toeunk@cs.cmu.edu"}
+]
+
+dependencies = [
+    "openai>=1.0",
+    "python-dotenv",
+    "pyyaml",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "faiss-cpu",
+    "torch",
+    "transformers",
+    "sentence-transformers",
+    "tqdm",
+    "httpx",
+    "aiohttp",
+]
+
+[project.optional-dependencies]
+vllm = ["vllm"]
+dev = ["build", "twine"]
+
+[project.scripts]
+marketplace-eval-analyze = "marketplace_eval.post_simulation.cli:main"
+
+[project.urls]
+Repository = "https://github.com/kimdanny/marketplace-eval.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
