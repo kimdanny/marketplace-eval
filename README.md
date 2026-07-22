@@ -1,7 +1,11 @@
 # Evaluation of Agents under Simulated AI Marketplace Dynamics
 
-Official Code Repository for SIGIR 2026 perspective paper: 
-"Evaluation of Agents under Simulated AI Marketplace Dynamics"
+[![Paper](https://img.shields.io/badge/arXiv-2604.14256-b31b1b.svg)](https://arxiv.org/abs/2604.14256)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+Official Code Repository for **SIGIR 2026** perspective paper: 
+[Evaluation of Agents under Simulated AI Marketplace Dynamics](https://dl.acm.org/doi/10.1145/3805712.3808542)
+
 
 ## Reproduction of Motivating Experiment
 
