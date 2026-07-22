@@ -7,6 +7,12 @@ Official Code Repository for **SIGIR 2026** perspective paper:
 [Evaluation of Agents under Simulated AI Marketplace Dynamics](https://dl.acm.org/doi/10.1145/3805712.3808542)
 
 
+<p align="center">
+  <img src="assets/eval-paradigms.png" alt="evaluation paradigms including marketplace evaluation" width="700"/>
+   <br>
+   <strong>Evaluation Paradigms</strong>
+</p>
+
 ## Reproduction of Motivating Experiment
 
 This section describes how to reproduce the two main experiments presented in the paper: (DeepSeek V3.2 introduced at t=100) and  (Qwen3 235B introduced at t=100). Both experiments simulate a marketplace with 7 LLM generators where one generator enters mid-simulation to demonstrate market dynamics under late entry.
